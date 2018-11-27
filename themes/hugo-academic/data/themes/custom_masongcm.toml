@@ -1,0 +1,23 @@
+# See post at https://lmyint.github.io/post/hugo-academic-tips/
+
+# Theme metadata
+name = "custom_masongcm"
+
+# Is theme light or dark?
+light = true
+
+# Primary
+primary = "#37456B"
+primary_light = "#37456B"
+primary_dark = "#37456B"
+
+# Menu
+menu_primary = "#37456B"
+menu_text = "#fff"
+menu_text_active = "#DBFCFF"
+menu_title = "#fff"
+
+# Backgrounds
+background = "#EDFDFF"
+home_section_odd = "#EDFDFF"
+home_section_even = "#fff"
