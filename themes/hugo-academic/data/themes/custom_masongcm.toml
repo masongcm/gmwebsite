@@ -18,6 +18,6 @@ menu_text_active = "#DBFCFF"
 menu_title = "#fff"
 
 # Backgrounds
-background = "#EDFDFF"
-home_section_odd = "#EDFDFF"
-home_section_even = "#fff"
+background = "#fff"
+home_section_odd = "#fff"
+home_section_even = "#EDFDFF"

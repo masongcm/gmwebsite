@@ -1,0 +1,439 @@
+---
+title: Measurement Invariance with Categorical Items
+author: Giacomo Mason
+date: '2018-12-01'
+slug: measurement-invariance-with-categorical-items
+categories:
+  - R
+  - statistics
+tags: [R,factor analysis,measurement invariance]
+image:
+  caption: ''
+  focal_point: ''
+bibliography: cohorts.bib
+
+---
+
+*This post is inspired by my recent work "Inequality in socioemotional skills: a cross-cohort comparison" published as a working paper [here](http://127.0.0.1:4709/publication/cohorts/cohorts/).*
+
+#### What is Measurement Invariance?
+
+Suppose you're an HR executive in a large firm, and you want to know: Are workers in your New York office more or less happy with their job than your employees in Mumbai? So you ask both offices to fill in a questionnaire on job satisfaction. The questionnaire is a short version of the [Job Satisfaction Survey](http://shell.cas.usf.edu/~pspector/scales/jsspag.html), aiming to capture two dimensions: satisfaction with the nature of work, and satisfaction with operating conditions. There is a total of 8 items:
+
+```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+library(knitr)
+library(kableExtra)
+tabl <- data.frame(
+  matrix(c(
+    "", "Nature of work",
+    "1.", "I sometimes feel my job is meaningless.",
+    "2.", "I like doing the things I do at work.",
+    "3.", "I feel a sense of pride in doing my job.",
+    "4.", "My job is enjoyable.",
+    "", "Operating Conditions",
+    "5.", "Many of our rules and procedures make doing a good job difficult.",
+    "6.", "My efforts to do a good job are seldom blocked by red tape.",
+    "7.", "I have too much to do at work.",
+    "8.", "I have too much paperwork."
+  ), ncol = 2, byrow = TRUE)
+)
+colnames(tabl) <- c("Item", "Text")
+kable(tabl, col.names = NULL) %>%
+    row_spec(c(1,6), bold = TRUE, color = "white", background = "#576172")
+
+```
+
+Each employee can endorse each statement on three levels: *Do not agree* (0), *Neither agree nor disagree* (1), *Agree* (2). 
+
+You might be tempted to take the answers, compute a score for each employee, and compare the mean score in NYC with the mean score in Mumbai. Now consider the following statements that are part of your questionnaire: 
+
+  - *My efforts to do a good job are seldom blocked by red tape* 
+  - *I sometimes feel my job is meaningless*
+
+There are many reasons to suspect that the interpretation of these statements might be very different between the US and India, due to different cultural norms, reference points, and expectations. In effect, two employees with the same answers to these questions, one in NYC and one in Mumbai, might have very different levels of job satisfaction!
+
+Is job satisfaction being measured by your questionnaire in the same way in your two offices? This is a matter of **measurement invariance**. If your questionnaire is not invariant across these two groups, your interpretation of the scores might be meaningless, or even misleading.
+
+#### Testing MI
+
+Luckily, measurement invariance is a *testable* statistical property. In this post, I focus on testing MI using a factor analysis approach.^[There are analogous procedures using differential item functioning in an item response theory paradigm (IRT). For example, have a look at the [`difR` package](https://cran.r-project.org/web/packages/difR/difR.pdf) on CRAN for more info.]
+The basic idea is to estimate a series of nested factor models that place increasing restrictions on parameters across groups -- e.g. the NYC and Mumbai offices in the previous example. 
+
+A bit more formally, say that $X^*_{ijg}$ denotes the answer to item $i$ of your questionnaire by employee $j$ in group $g$. Factor analysis models the response to each item as a function of a person-specific latent factor $\theta_{jg}$ (in this case, job satisfaction), some item-specific parameters -- intercepts $\nu_{ig}$ and factor loadings $\lambda_{ig}$ -- and a random error $u_{ijg}$.
+
+$$X^*_{ijg} =\nu_{ig} + \lambda_{ig}\theta_{jg} + u_{ijg}$$
+
+Everything is relatively easy-peasy when you observe continuous ratings $X^*$ directly, such as for example how much the employee agrees with each statement on a scale from 1 to 100. In this case, you estimate:
+
+  1. A *configural invariance* model -- which places the minimal restrictions for identification -- where both intercepts $\nu$ and loadings $\lambda$ are left free to vary across groups $g$
+  2. A *metric invariance* model, which constrains the loadings $\lambda$ to be equal across groups
+  3. A *scalar invariance* model, which additionally constrains intercepts $\nu$ to be equal across groups
+  4. A *full/uniqueness invariance* model, which additionally constrains the variances of the error terms $u$
+
+You can then compare the fit of these models and check which level of invariance is satisfied. This can be done by comparing absolute or relative fit indices -- like the RMSEA, Tucker-Lewis Index, Comparative Fit Index, among others. If the scalar invariance model fits as well as the configural invariance model, you can safely compare the means of the latent variables. This is a very brief treatment of the issue: if you want to know more, good places to start are @Vandenberg2000a or @Sass2011.
+
+#### Measurement Invariance with categorical measures
+
+Things get a bit less easy-peasy when you only observe discrete/categorical manifestations of the questionnaire items. For example, each item might be recorded on a 5-point Likert-type scale (from "completely disagree" to "completely agree"), or just in a binary fashion (yes/no). Treating these as continuous is not a good idea, as it implies a potentially dangerous linear approximation.
+
+In our HR example, employees filling your job satisfaction questionnaire could endorse each statement on three levels: *Do not agree* (0), *Neither agree nor disagree* (1), *Agree* (2). All you observe are these ordered values $X_{ijg}$, instead of the continuous $X^*_{ijg}$. You thus need to introduce additional item-specific threshold parameters $\tau_{s,ig}$ to map the observed $X$ to the unobserved $X^*$, as follows:
+
+$$X_{ijg} = s \qquad \text{if} \; \tau_{s,ig} \leq X^*_{ijg} < \tau_{s+1,ig} \qquad \text{for} \; s=0,1,2.$$
+
+For the statisticians and econometricians in the room, this formulation is very much analogous to a discrete choice model, like for example ordered probit or logit. This additional set of parameters complicates identification, because -- just like in an ordered probit model -- it requires additional normalisations. Thankfully, a recent *Psychometrika* paper by @Wu2016a lays out the conditions for identification in this type of model in great detail. The R syntax below follows their approach closely.
+
+### An example in R
+
+Ok now, how do we conduct this measurement invariance analysis in R? Here I will be using the brilliant `lavaan` package, in particular its `cfa` function which estimates Confirmatory Factor Analysis models.^[You can find release notes, tutorials, and much more on the [project's page](http://lavaan.ugent.be).] 
+
+```{r, message=FALSE}
+library(lavaan)
+```
+
+```{r, echo=FALSE}
+set.seed(42)
+# add third factor as additional unobserved items introducing noise
+pop<-'
+NW =~ c(.85,1.05)*x1 + c(.7,.8)*x2 + 1*x3 + c(.7, .9)*x4
+OC =~ c(.55,.75)*x5 + c(1.4,1.3)*x6 + .8*x7 + c(.8,.4)*x8
+x1 | c(-.2, 0)*t1 + c(.3,.5)*t2
+x2 | -.5*t1 + c(-.1, .3)*t2
+x3 | c(-.4,-.1)*t1 + .3*t2
+x4 | c(-.7,-.2)*t1 + c(-.2,.1)*t2
+x5 | c(.0,.1)*t1  + .4*t2
+x6 | c(-.9, -.3)*t1 + -.1*t2
+x7 | -.3*t1 + c(.6,.4)*t2
+x8 | c(-.1,.0)*t1 + .5*t2
+NW ~~ c(1,1)*NW
+OC ~~ c(1,1)*OC
+NW ~ c(0,0)*1
+OC ~ c(0,0)*1
+NW ~~ .5*OC
+x1 ~~ c(1, 0.8)*x1
+x2 ~~ c(2, 2.5)*x2
+x3 ~~ c(1, 1.2)*x3
+x4 ~~ c(3, 3.4)*x4
+x5 ~~ c(2, 2.6)*x5
+x6 ~~ c(1, 0.9)*x6
+x7 ~~ c(2, 1.5)*x7
+x8 ~~ c(3, 2.3)*x8
+x1 ~ c(0, .3)*1
+x2 ~ c(0, -.1)*1
+x3 ~ c(0, -.3)*1
+x4 ~ c(0, 0)*1
+x5 ~ c(0, -.2)*1
+x6 ~ c(0, .3)*1
+x7 ~ c(0, .1)*1
+x8 ~ c(0, -.1)*1
+'
+sample<-simulateData(model=pop, parameterization="theta", sample.nobs = c(400,400))
+sample <- data.frame(lapply(sample, as.ordered))
+colnames(sample)[colnames(sample)=="group"] <- "office"
+levels(sample$office) <- c("NYC", "Mumbai")
+levels(sample$x1) <- c("Disagree", "Neither", "Agree")
+levels(sample$x2) <- c("Disagree", "Neither", "Agree")
+levels(sample$x3) <- c("Disagree", "Neither", "Agree")
+levels(sample$x4) <- c("Disagree", "Neither", "Agree")
+levels(sample$x5) <- c("Disagree", "Neither", "Agree")
+levels(sample$x6) <- c("Disagree", "Neither", "Agree")
+levels(sample$x7) <- c("Disagree", "Neither", "Agree")
+levels(sample$x8) <- c("Disagree", "Neither", "Agree")
+```
+
+I've simulated some data for a thousand employees in our firm, 400 in NYC and 400 in Mumbai. For each of the employees, there's a response to eight items ($X_{1jg}$ to $X_{8jg}$) in three categories:
+
+```{r}
+summary(sample)
+```
+
+#### The configural model
+
+The first model we estimate is always the configural model. Again, this is a model where we only assume that the factor structure is common among groups, i.e. in both groups the same items measure the same latent constructs. In our case, the first four items ($X_{1jg}$ to $X_{4jg}$) measure the "Nature of work" construct, while the last four measure "Operating Conditions".
+
+There are three equivalent parameterisations that we can employ to identify the parameters of the configural model. For more details, see Wu and Estabrook (2016) and Appendix B of our [working paper](http://127.0.0.1:4709/publication/cohorts/cohorts/), but here's the gist of it: 
+
+  - The **Theta** parameterisation, where the variances of the unique errors are restricted to 1.
+  - The **Delta** parameterisation, where it's the implied variance of the latent measures $X^*$ that is fixed to unity.
+  - An "**anchored**" parameterisation is also available, as suggested by @Millsap2004, where one reference indicator is selected for each latent factor. We will not consider it here.
+
+Let's start from writing down the `lavaan` syntax for the Theta parameterisation. We will consider the first group (the NYC office) as the *reference* group, and the second group (Mumbai) as the *target* group. This is an arbitrary choice and does not affect our conclusions.
+
+```{r}
+configural_theta <- "
+F1 =~ x1 + x2 + x3 + x4
+F2 =~ x5 + x6 + x7 + x8
+x1 | t1 + t2
+x2 | t1 + t2
+x3 | t1 + t2
+x4 | t1 + t2
+x5 | t1 + t2
+x6 | t1 + t2
+x7 | t1 + t2
+x8 | t1 + t2
+x1 ~~ c(1, 1)*x1
+x2 ~~ c(1, 1)*x2
+x3 ~~ c(1, 1)*x3
+x4 ~~ c(1, 1)*x4
+x5 ~~ c(1, 1)*x5
+x6 ~~ c(1, 1)*x6
+x7 ~~ c(1, 1)*x7
+x8 ~~ c(1, 1)*x8
+x1 ~ c(0, 0)*1
+x2 ~ c(0, 0)*1
+x3 ~ c(0, 0)*1
+x4 ~ c(0, 0)*1
+x5 ~ c(0, 0)*1
+x6 ~ c(0, 0)*1
+x7 ~ c(0, 0)*1
+x8 ~ c(0, 0)*1
+F1 ~~ c(1,1)*F1
+F2 ~~ c(1,1)*F2
+F1 ~ c(0, 0)*1
+F2 ~ c(0, 0)*1
+F1 ~~ NA*F2
+"
+```
+
+As is practice when doing multigroup analysis, we can fix values for parameters by specifying a vector `c()` with as many elements as the number of groups -- in our case, two. Some things to note:
+  
+  - With `F1 =~ x1 + x2 + x3 + x4` I specify that the first 4 items load on the first factor, that I call `F1`. But **watch out**! Without specifying, `lavaan` will automatically fix the first loading to unity, which is not what either the Theta or Delta parameterisations require. There are a few ways to tell the software to actually estimate these parameters:
+    - prefacing `x1` and `x5` in the model syntax by `c(NA,NA)`;
+    - switching off the automatic fixing of the first loading, by specifying `auto.fix.first = FALSE` in the call to the `lavaan` function -- which is what we will do in this post;
+    - specifying `std.lv = TRUE` in the call, which standardises the mean and variance of the latent factors instead of the first loadings -- which we will avoid, since we do want to specify different means and variances down the line;
+    
+  - The syntax `x1 | t1 + t2` defines the threshold parameters. There are two thresholds per item, as each item has three levels. It is probably superflous since `lavaan` understands this itself from the levels of the factors in the data, but I specify this for clarity.
+  - The syntax `x1 ~~ c(1, 1)*x1` sets the variances of the unique error terms to unity, as required by the Theta parameterisation.
+  - `x1 ~ c(0, 0)*1` sets the intercepts to zero in both groups for each item. This is also superflous.
+  - Finally, `F1 ~~ c(1,1)*F1` sets the variance of the first factor to 1, while `F1 ~ c(0, 0)*1` sets its mean to zero, in both groups. The same is done with the second factor. `F1 ~~ NA*F2` makes sure that the covariance between the factors gets estimated.
+  
+As you see, once you understand how `lavaan` syntax works, it's easy to get full control of how you specify your model. The Delta parameterisation is very similar, but we use `x1 ~*~ c(1, 1)*x1` to restrict the latent measures' implied variances instead of the variances of the uniqueness.
+
+```{r}
+configural_delta <- "
+F1 =~ x1 + x2 + x3 + x4
+F2 =~ x5 + x6 + x7 + x8
+x1 | t1 + t2
+x2 | t1 + t2
+x3 | t1 + t2
+x4 | t1 + t2
+x5 | t1 + t2
+x6 | t1 + t2
+x7 | t1 + t2
+x8 | t1 + t2
+x1 ~*~ c(1, 1)*x1
+x2 ~*~ c(1, 1)*x2
+x3 ~*~ c(1, 1)*x3
+x4 ~*~ c(1, 1)*x4
+x5 ~*~ c(1, 1)*x5
+x6 ~*~ c(1, 1)*x6
+x7 ~*~ c(1, 1)*x7
+x8 ~*~ c(1, 1)*x8
+x1 ~ c(0, 0)*1
+x2 ~ c(0, 0)*1
+x3 ~ c(0, 0)*1
+x4 ~ c(0, 0)*1
+x5 ~ c(0, 0)*1
+x6 ~ c(0, 0)*1
+x7 ~ c(0, 0)*1
+x8 ~ c(0, 0)*1
+F1 ~~ c(1,1)*F1
+F2 ~~ c(1,1)*F2
+F1 ~ c(0, 0)*1
+F2 ~ c(0, 0)*1
+F1 ~~ NA*F2
+"
+```
+
+These two parameterisations are statistically equivalent. They are just three of the potentially infinite ways in which we can identify the model! This is because of the *factor indeterminacy* common to all latent variable models.
+
+How can we show that they are indeed equivalent? Let's estimate the models and compare their fit by their $\chi^2$ value. We could use the confirmatory factor analysis (`cfa()`) function -- a user-friendly wrapper -- but it does not take the `auto.fix.first` argument we need for the loadings. So let's use the more low-level `lavaan()` function, which takes the same syntax as first argument:
+
+```{r}
+m_conf_theta <- lavaan(configural_theta, 
+                    data = sample, group = "office", 
+                    parameterization="theta", estimator="wlsmv",
+                    auto.fix.first = FALSE)
+m_conf_delta <- lavaan(configural_delta, 
+                    data = sample, group = "office", 
+                    parameterization="delta", estimator="wlsmv",
+                    auto.fix.first = FALSE)
+```
+
+```{r, echo=FALSE, results='asis'}
+modlist <- list(m_conf_theta, m_conf_delta)
+chitab <- matrix(unlist(lapply(modlist, function(x) fitMeasures(x)[c("npar", "chisq")])), ncol=2, byrow = TRUE)
+rownames(chitab) <- c("Theta", "Delta")
+colnames(chitab) <- c("Num. parameters", "Chi-squared")
+kable(chitab) 
+```
+
+#### Estimating nested models
+
+After the configural model, we can proceed with estimating the nested models. We will then test these against the configural model and assess their relative fit. For this post, we will stick with the Theta parameterisation, but the same approach can be done using Delta. Wu and Estabrook (2016) suggest estimating the following sequence of models:
+
+  1. *Threshold Invariance* -- Note that this is statistically equivalent to the configural model when data is ternary (three categories) like in our case. You can see that the syntax to restrict parameters to be equal requires giving them the same name (e.g. `t1_1` for the first threshold on the first item in both groups).
+
+```{r}
+t_inv_theta <- "
+F1 =~ x1 + x2 + x3 + x4
+F2 =~ x5 + x6 + x7 + x8
+x1 | c(t1_1, t1_1)*t1 + c(t2_1, t2_1)*t2
+x2 | c(t1_2, t1_2)*t1 + c(t2_2, t2_2)*t2
+x3 | c(t1_3, t1_3)*t1 + c(t2_3, t2_3)*t2
+x4 | c(t1_4, t1_4)*t1 + c(t2_4, t2_4)*t2
+x5 | c(t1_5, t1_5)*t1 + c(t2_5, t2_5)*t2
+x6 | c(t1_6, t1_6)*t1 + c(t2_6, t2_6)*t2
+x7 | c(t1_7, t1_7)*t1 + c(t2_7, t2_7)*t2
+x8 | c(t1_8, t1_8)*t1 + c(t2_8, t2_8)*t2
+x1 ~~ c(1, NA)*x1
+x2 ~~ c(1, NA)*x2
+x3 ~~ c(1, NA)*x3
+x4 ~~ c(1, NA)*x4
+x5 ~~ c(1, NA)*x5
+x6 ~~ c(1, NA)*x6
+x7 ~~ c(1, NA)*x7
+x8 ~~ c(1, NA)*x8
+x1  ~ c(0, NA)*1
+x2  ~ c(0, NA)*1
+x3  ~ c(0, NA)*1
+x4  ~ c(0, NA)*1
+x5  ~ c(0, NA)*1
+x6  ~ c(0, NA)*1
+x7  ~ c(0, NA)*1
+x8  ~ c(0, NA)*1
+F1 ~~ c(1,1)*F1
+F2 ~~ c(1,1)*F2
+F1 ~ c(0, 0)*1
+F2 ~ c(0, 0)*1
+F1 ~~ NA*F2
+"
+m_t_inv_theta <- lavaan(t_inv_theta, 
+                        data = sample, group = "office", 
+                        parameterization="theta", estimator="wlsmv",
+                        auto.fix.first = FALSE)
+
+```
+
+2. *Threshold and loading invariance*: This level of invariance restricts both thresholds and loadings to be the same across groups, and frees the variance of the latent variable the target group(s).
+
+```{r}
+tl_inv_theta <- "
+F1 =~ c(l1, l1)*x1 + c(l2,l2)*x2 + c(l3,l3)*x3 + c(l4,l4)*x4
+F2 =~ c(l2, l2)*x5 + c(l6,l6)*x6 + c(l7,l7)*x7 + c(l8,l8)*x8
+x1 | c(t1_1, t1_1)*t1 + c(t2_1, t2_1)*t2
+x2 | c(t1_2, t1_2)*t1 + c(t2_2, t2_2)*t2
+x3 | c(t1_3, t1_3)*t1 + c(t2_3, t2_3)*t2
+x4 | c(t1_4, t1_4)*t1 + c(t2_4, t2_4)*t2
+x5 | c(t1_5, t1_5)*t1 + c(t2_5, t2_5)*t2
+x6 | c(t1_6, t1_6)*t1 + c(t2_6, t2_6)*t2
+x7 | c(t1_7, t1_7)*t1 + c(t2_7, t2_7)*t2
+x8 | c(t1_8, t1_8)*t1 + c(t2_8, t2_8)*t2
+x1 ~~ c(1, NA)*x1
+x2 ~~ c(1, NA)*x2
+x3 ~~ c(1, NA)*x3
+x4 ~~ c(1, NA)*x4
+x5 ~~ c(1, NA)*x5
+x6 ~~ c(1, NA)*x6
+x7 ~~ c(1, NA)*x7
+x8 ~~ c(1, NA)*x8
+x1  ~ c(0, NA)*1
+x2  ~ c(0, NA)*1
+x3  ~ c(0, NA)*1
+x4  ~ c(0, NA)*1
+x5  ~ c(0, NA)*1
+x6  ~ c(0, NA)*1
+x7  ~ c(0, NA)*1
+x8  ~ c(0, NA)*1
+F1 ~~ c(1,NA)*F1
+F2 ~~ c(1,NA)*F2
+F1 ~ c(0, 0)*1
+F2 ~ c(0, 0)*1
+F1 ~~ NA*F2
+"
+m_tl_inv_theta <- lavaan(tl_inv_theta, 
+                         data = sample, group = "office", 
+                         parameterization="theta", estimator="wlsmv",
+                         auto.fix.first = FALSE)
+
+```
+
+3. *Threshold, loading, and intercept invariance* -- which further restricts the intercepts, and frees the mean as well as the intercept of the latent variables in the target group(s).
+
+```{r}
+tli_inv_theta <- "
+F1 =~ c(l1, l1)*x1 + c(l2,l2)*x2 + c(l3,l3)*x3 + c(l4,l4)*x4
+F2 =~ c(l2, l2)*x5 + c(l6,l6)*x6 + c(l7,l7)*x7 + c(l8,l8)*x8
+x1 | c(t1_1, t1_1)*t1 + c(t2_1, t2_1)*t2
+x2 | c(t1_2, t1_2)*t1 + c(t2_2, t2_2)*t2
+x3 | c(t1_3, t1_3)*t1 + c(t2_3, t2_3)*t2
+x4 | c(t1_4, t1_4)*t1 + c(t2_4, t2_4)*t2
+x5 | c(t1_5, t1_5)*t1 + c(t2_5, t2_5)*t2
+x6 | c(t1_6, t1_6)*t1 + c(t2_6, t2_6)*t2
+x7 | c(t1_7, t1_7)*t1 + c(t2_7, t2_7)*t2
+x8 | c(t1_8, t1_8)*t1 + c(t2_8, t2_8)*t2
+x1 ~~ c(1, NA)*x1
+x2 ~~ c(1, NA)*x2
+x3 ~~ c(1, NA)*x3
+x4 ~~ c(1, NA)*x4
+x5 ~~ c(1, NA)*x5
+x6 ~~ c(1, NA)*x6
+x7 ~~ c(1, NA)*x7
+x8 ~~ c(1, NA)*x8
+x1  ~ c(0, 0)*1
+x2  ~ c(0, 0)*1
+x3  ~ c(0, 0)*1
+x4  ~ c(0, 0)*1
+x5  ~ c(0, 0)*1
+x6  ~ c(0, 0)*1
+x7  ~ c(0, 0)*1
+x8  ~ c(0, 0)*1
+F1 ~~ c(1,NA)*F1
+F2 ~~ c(1,NA)*F2
+F1 ~ c(0, NA)*1
+F2 ~ c(0, NA)*1
+F1 ~~ NA*F2
+"
+m_tli_inv_theta <- lavaan(tli_inv_theta, 
+                          data = sample, group = "office", 
+                          parameterization="theta", estimator="wlsmv",
+                          auto.fix.first = FALSE)
+```
+
+#### Comparing fit
+
+Now that we have estimated these increasingly restricted models, how do we assess how well they fit? Remember that our reference (baseline) model is always the configural model, to which all subsequent models should be compared.
+
+A popular method is to conduct a chi-squared test of each model against the configural. This can easily be done with the `anova()` method:
+
+```{r}
+anova(m_conf_theta, m_tl_inv_theta, m_tli_inv_theta)
+```
+
+We can see that the hypothesis that the model with restricted loadings and thresholds fits as well as the configural model has a quite low p value, indicating possible lack of *metric* invariance. Our model with restricted intercepts fails the invariance test even more severely.
+
+When we have relatively large samples, the $\chi^2$ test is known to over-reject invariance. It is thus usually accompanied by the analysis of alternative fit indices (AFIs). There is a lot of debate about the appropriate cutoffs to use (see @Cheung2002 for example), especially in the categorical measures case. My suggestion is to interpret them "holistically" rather than adhering to any strict guideline.
+
+Here's a table with some commonly used indices for each of our fitted models -- including the root mean squared error of approximation (RMSEA), the comparative fit index (CFI), and the Tucker-Lewis index (TLI).
+
+```{r, echo=FALSE, results='asis'}
+modlist <- list(m_conf_theta, m_t_inv_theta, m_tl_inv_theta, m_tli_inv_theta)
+fitshow <- c("npar", "chisq", "rmsea", "cfi", "tli")
+chitab <- matrix(unlist(lapply(modlist, function(x) fitMeasures(x)[fitshow])), 
+                 ncol=length(fitshow), byrow = TRUE)
+rownames(chitab) <- c("Configural", "Threshold Invariance", "Threshold and loading invariance", "Threshold, loading, and intercept invariance")
+colnames(chitab) <- c("Params", "$\\chi^2$", "RMSEA", "CFI", "TLI")
+kable(chitab, digits = 3)
+```
+
+We can see that:
+
+  - Our configural model fits the data very well.
+  - As shown in @Wu2016a, restricting only the thresholds gives a statistically equivalent model with the same fit.
+  - Restriction of both threshold and loadings delivers a more restrictive model, that seems to fit comparably to the configural one.
+  - Further restricting the loadings provide a much worse fit.
+  
+In our business example, we would conclude that the same questionnaire administered in our US and India offices is not really capturing in the same way how our employees feel about "Nature of Work" and "Operating Conditions".
+  
+Obviously, this is simulated data, and the real world outside our laptops will be way messier!
+
+#### References

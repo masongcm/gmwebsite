@@ -2,14 +2,14 @@
 # Recent Posts widget.
 # This widget displays recent posts from `content/post/`.
 widget = "posts"
-active = false
+active = true
 date = 2016-04-20T00:00:00
 
 title = "Recent Posts"
 subtitle = ""
 
 # Order that this section will appear in.
-weight = 40
+weight = 20
 
 # Filter posts by tag.
 #  By default, show all recent posts.
