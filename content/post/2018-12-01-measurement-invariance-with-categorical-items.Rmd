@@ -13,7 +13,7 @@ image:
 bibliography: cohorts.bib
 
 ---
-
+ 
 *This post is inspired by my recent work "Inequality in socioemotional skills: a cross-cohort comparison" published as a working paper [here](http://127.0.0.1:4709/publication/cohorts/cohorts/).*
 
 #### What is Measurement Invariance?
