@@ -15,13 +15,13 @@ weight = 60
 
 +++
 
-Postgraduate Teaching Assistant at University College London:
+**Postgraduate Teaching Assistant** at University College London:
 
-- ECON2007: Quantitative Economics and Econometrics
-- ECON7005: Economics of the Public Sector
-- ECON7012: Economics of Education
+  - ECON2007: Quantitative Economics and Econometrics
+  - ECON7005: Economics of the Public Sector
+  - ECON7012: Economics of Education
 
-Awards:
+**Awards**:
 
-- Excellence in Teaching 2014/2015 (UCL Economics Department, winner)
-- Outstanding Feedback 2017/2018 (UCL Student's Union, nominated)
+  - Excellence in Teaching 2014/2015 (UCL Economics Department, winner)
+  - Outstanding Feedback 2017/2018 (UCL Student's Union, nominated)
