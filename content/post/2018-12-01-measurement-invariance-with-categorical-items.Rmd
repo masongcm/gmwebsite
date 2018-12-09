@@ -436,4 +436,6 @@ In our business example, we would conclude that the same questionnaire administe
   
 Obviously, this is simulated data, and the real world outside our laptops will be way messier!
 
+The complete code for the post is in the .Rmd file on [my GitHub](https://github.com/masongcm/gmwebsite/blob/master/content/post/2018-12-01-measurement-invariance-with-categorical-items.Rmd).
+
 #### References
