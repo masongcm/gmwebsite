@@ -6,7 +6,7 @@
 
 # The URL of your website.
 # End your URL with a `/` trailing slash, e.g. `https://example.com/`.
-baseurl = "https://masongcm.netlify.com"
+baseurl = "https://giacomomason.com"
 
 # Title of your site
 title = "Giacomo Mason"
@@ -35,6 +35,9 @@ defaultContentLanguageInSubdir = false
 
 # Get last modified date for content from Git?
 enableGitInfo = false
+
+# Limit articles in RSS feed
+rssLimit = 10
 
 [outputs]
   home = [ "HTML", "CSS", "RSS", "JSON" ]
