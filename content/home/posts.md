@@ -27,3 +27,5 @@ count = 5
 list_format = 2
 +++
 
+Check out [**R-Bloggers**](http://www.R-bloggers.com) for more R-related content!
+
