@@ -21,6 +21,16 @@ external_link = ""
 # Does the project detail page use math formatting?
 math = false
 
+# Featured image
+# To use, add an image named `featured.jpg/png` to your project's folder. 
+[image]
+  # Caption (optional)
+  caption = "Photo by [Heather Mount](https://unsplash.com/@heathermount) on [Unsplash](https://unsplash.com)"
+  
+  # Focal point (optional)
+  # Options: Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight
+  focal_point = "Center"
+
 # Optional featured image (relative to `static/img/` folder).
 [header]
 image = "headers/radiel-wide.jpg"
