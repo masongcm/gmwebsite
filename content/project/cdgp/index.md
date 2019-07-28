@@ -54,9 +54,9 @@ There's many reasons why children born to poor households might fail to thrive. 
 
 The **Child Development Grant Programme (CDGP)** tackles both of these issues. Taking place in Northern Nigeria, the CDGP:
 
-- it provides pregnant women with a large monthly _cash grant_ until their child turns two
+- provides pregnant women with a large monthly _cash grant_ until their child turns two
 
-- at the same time, it organises _media campaigns and counselling_ for new mothers around how to feed and breastfeed their child
+- organises _media campaigns and counselling_ for new mothers around how to feed and breastfeed their child
 
 CDGP is funded by the Department for International Development and implemented by Save the Children and Action Against Hunger. It is evaluated by a consortium led by [Oxford Policy Management](https://www.opml.co.uk), and comprising [Itad](http://www.itad.com) and the [Institute for Fiscal Studies](https://www.ifs.org.uk), where I work.
 
@@ -72,5 +72,7 @@ During the course of this project, I've had the luck to:
 
 - discover and visit a fascinating country like Nigeria with its compelling history, amazing people, and exciting perspective 🇳🇬
 
-Results of the two-year followup are already available on the [OPM Website](https://www.opml.co.uk/files/Publications/8214-evaluation-child-development-grant-programme/cdgp-quantitative-midline-report-volume-i.pdf). Stay tuned for the final followup (Spring 2019) and academic publications!
+Results of the twevaluation areorilable on the [OPM Website](https://www.opml.co.uk/files/Publications/8214-evaluation-child-development-grant-programme/c S
+
+ay tuned for thademic publications!
 

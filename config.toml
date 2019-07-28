@@ -61,12 +61,14 @@ rssLimit = 10
 
   # Your details.
   name = "Giacomo Mason"
-  role = "Quantitative Economist"
+  role = "Data Scientist"
 
   # Organizations/Affiliations.
   #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
-  organizations = [ { name = "UCL Department of Economics", url = "https://www.ucl.ac.uk/economics/" },
-  { name = "Institute for Fiscal Studies", url = "https://www.ifs.org.uk" }]
+  organizations = [ 
+    { name = "DaTA Unit, Competition and Markets Authority", 
+    url = "https://www.gov.uk/government/organisations/competition-and-markets-authority" }
+    ]
 
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
   avatar = "portrait.png"  # Specify an avatar image (in `static/img/` folder) or delete value to disable avatar.
@@ -258,7 +260,7 @@ rssLimit = 10
   [[params.social]]
     icon = "cv"
     icon_pack = "ai"
-    link = "files/cv.pdf"
+    link = "files/CV_mason_190728.pdf"
 
 # Navigation Links
 #   To link a homepage widget, specify the URL as a hash `#` followed by the filename of the

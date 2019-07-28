@@ -10,21 +10,18 @@ weight = 5
 # List your academic interests.
 [interests]
   interests = [
-    "Health and Development Economics",
-    "Early Childhood Interventions",
-    "Survey Design and Management",
+    "Data Science",
+    "Machine Learning and AI",
+    "Competition and Digital Platforms",
+    "Econometrics for Causal Inference",
     "Experimental Evaluation",
-    "Quasi-experimental methods",
-    "Statistical Analysis",
-    "Data Science and Machine Learning",
-    "R, Python, Stata"
   ]
 
 # List your qualifications (such as academic degrees).
 [[education.courses]]
   course = "PhD Economics"
   institution = "University College London"
-  year = "Spring 2019 (Expected)"
+  year = "2019"
 
 [[education.courses]]
   course = "MPhil Economics"
@@ -43,4 +40,4 @@ weight = 5
  
 +++
 
-I'm a PhD Candidate at the Economics Department, University College London. I've worked on a range of topics in health and labour economics. I'm committed to the use of data and reproducible analytical methods to evaluate policy and interventions -- in other words, to uncover _what works_. You can find my Curriculum Vitae [here](files/cv.pdf).
+I'm a Data Scientist at the Competition and Markets Authority, within the Data, Technology and Analytics (DaTA) Unit. I work on internal and external facing tasks, supporting the organisation to make markets work for UK consumers. In my academic career, I've worked on a range of topics in health and labour economics. I'm committed to the use of data and advanced, reproducible analytical methods to understand the world and inform policy. You can find my Curriculum Vitae [here](files/CV_mason_190728.pdf).

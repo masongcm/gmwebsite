@@ -21,24 +21,48 @@ weight = 50
 # * fab - Font Awesome brand icons (see https://fontawesome.com/icons)
 # * ai - academic icons (see https://jpswalsh.github.io/academicons/)
 
+[[feature]]
+  icon = "search"
+  icon_pack = "fas"
+  name = "Analytics"
+  description = "Statistics, econometric modelling, machine learning"
+  
+[[feature]]
+  icon = "table"
+  icon_pack = "fas"
+  name = "Data"
+  description = "Cleaning and wrangling in R (tidyverse) and python (pandas)"
+  
+[[feature]]
+  icon = "microscope"
+  icon_pack = "fas"
+  name = "Reproducibility"
+  description = "R markdown, Sweave, knitr, Jupyter"
+  
+[[feature]]
+  icon = "chart-line"
+  icon_pack = "fas"
+  name = "Data Visualisation"
+  description = "R (ggplot, shiny, plotly), python (matplotlib, seaborn, altair)"
+  
+[[feature]]
+  icon = "book"
+  icon_pack = "fas"
+  name = "Natural Language Processing"
+  description = "Python (NLTK, Spacy), R (tidytext)"
+  
+[[feature]]
+  icon = "globe"
+  icon_pack = "fas"
+  name = "Web Scraping"
+  description = "Static (requests) and dynamic content (selenium)"
 
 [[feature]]
-  icon = "r-project"
+  icon = "github"
   icon_pack = "fab"
-  name = "R"
-  description = "Reproducible research (`rmarkdown`, `Sweave`), Data cleaning, wrangling, and analysis (`dplyr` and the `tidyverse`), Static and interactive visualisation (`ggplot`, `plotly`, `shiny`), Factor analysis and SEM (`lavaan`, `sem`, `psych`)"
-  
-[[feature]]
-  icon = "python"
-  icon_pack = "fab"
-  name = "Python"
-  description = "Data cleaning and wrangling (`pandas`), Machine learning (`scikit-learn`), Text analysis (`nltk`)"
-  
-[[feature]]
-  icon = "window-restore"
-  icon_pack = "fas"
-  name = "Stata"
-  description = "Regression analysis, Data cleaning, Visualisation"
+  name = "Development"
+  description = "Collaborative development with git and GitHub"
+
 
 +++
 
