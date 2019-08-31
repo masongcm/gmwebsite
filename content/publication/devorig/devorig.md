@@ -18,7 +18,7 @@ authors = ["Gabriella Conti", "Giacomo Mason", "Stavros Poupakis"]
 publication_types = ["3"]
 
 # Publication name and optional abbreviated version.
-publication = "Oxford Research Encyclopedia of Economics and Finance (forthcoming)"
+publication = "Oxford Research Encyclopedia of Economics and Finance"
 publication_short = ""
 
 # Abstract and optional shortened version.
@@ -42,9 +42,9 @@ projects = []
 tags = []
 
 # Links (optional).
-url_pdf = "https://www.ifs.org.uk/uploads/WP201917.pdf"
+url_pdf = "https://oxfordre.com/economics/view/10.1093/acrefore/9780190625979.001.0001/acrefore-9780190625979-e-4"
 #url_preprint = "#"
-#url_code = "https://github.com/masongcm/Cohorts"
+#url_code = "#"
 #url_dataset = "#"
 #url_project = "#"
 #url_slides = "#"
