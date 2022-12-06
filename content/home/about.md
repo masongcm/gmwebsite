@@ -11,8 +11,6 @@ weight = 5
 [interests]
   interests = [
     "Data Science",
-    "Machine Learning and AI",
-    "Competition and Digital Platforms",
     "Econometrics for Causal Inference",
     "Experimental Evaluation",
   ]
@@ -40,4 +38,4 @@ weight = 5
  
 +++
 
-I'm a Data Scientist at the Competition and Markets Authority, within the Data, Technology and Analytics (DaTA) Unit. I work on internal and external facing tasks, supporting the organisation to make markets work for UK consumers. In my academic career, I've worked on a range of topics in health and labour economics. I'm committed to the use of data and advanced, reproducible analytical methods to understand the world and inform policy. You can find my Curriculum Vitae [here](files/CV_mason_190728.pdf).
+I'm a Data Scientist at the Competition and Markets Authority, within the Data, Technology and Analytics (DaTA) Unit. I work on internal and external facing tasks, supporting the organisation to make markets work for UK consumers. In my academic career, I've worked on a range of topics in health and labour economics. I'm committed to the use of data and advanced, reproducible analytical methods to understand the world and inform policy. You can find my Curriculum Vitae [here](files/CV_Mason_221206.pdf).

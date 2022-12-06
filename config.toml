@@ -13,7 +13,7 @@ title = "Giacomo Mason"
 
 # Your copyright notice - appears in site footer.
 # To display a copyright symbol, type `&copy;`.
-copyright = "&copy; Giacomo Mason 2018"
+copyright = "&copy; Giacomo Mason 2022"
 
 theme = "hugo-academic"
 enableEmoji = true
@@ -66,8 +66,8 @@ rssLimit = 10
   # Organizations/Affiliations.
   #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
   organizations = [ 
-    { name = "DaTA Unit, Competition and Markets Authority", 
-    url = "https://www.gov.uk/government/organisations/competition-and-markets-authority" }
+    { name = "Deliveroo", 
+    url = "https://http://deliveroo.co.uk" }
     ]
 
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
@@ -260,7 +260,7 @@ rssLimit = 10
   [[params.social]]
     icon = "cv"
     icon_pack = "ai"
-    link = "files/CV_mason_190728.pdf"
+    link = "files/CV_Mason_221206.pdf"
 
 # Navigation Links
 #   To link a homepage widget, specify the URL as a hash `#` followed by the filename of the
