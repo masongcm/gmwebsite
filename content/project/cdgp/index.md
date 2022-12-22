@@ -72,7 +72,4 @@ During the course of this project, I've had the luck to:
 
 - discover and visit a fascinating country like Nigeria with its compelling history, amazing people, and exciting perspective 🇳🇬
 
-Results of the twevaluation areorilable on the [OPM Website](https://www.opml.co.uk/files/Publications/8214-evaluation-child-development-grant-programme/c S
-
-ay tuned for thademic publications!
 
